@@ -2,93 +2,25 @@
 #include "DifficultyHitObjectCreator.h"
 #include "StarRatingCalculator.h"
 
-#include "vector"
-#include "map"
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
 #include "Utils.h"
-#include "types.h"
+#include "osu_sr_calculator.h"
 #include "Objects/osu/Beatmap.h"
 #include "Objects/osu/HitObjects/DifficultyHitObject.h"
 
-std::map<std::string, Output> calculateStarRating(const std::string& filepath, const std::vector<std::string>& mods = {}, bool allCombinations=false, bool verbose=false);
 Output calculateNextModCombination(Beatmap* beatmap, const std::vector<std::string>& mods);
 float getTimeRate(const std::vector<std::string>& mods);
 std::vector<ModCombination> getAllModCombinations();
 std::string getLocalOsuBeatmap(const std::string& filePath);
-
-int main() {
-    std::map<std::string, Output> o = calculateStarRating("test1.osu");
-    for (auto const& x : o)
-    {
-        std::cout << x.first  // string (key)
-                  << ":aim "
-                  << x.second.aim // string's value
-                << ":speed "
-                << x.second.speed // string's value
-                << ":total "
-                << x.second.total // string's value
-                  << std::endl;
-    }
-
-    std::map<std::string, Output> p = calculateStarRating("test2.osu");
-    for (auto const& x : p)
-    {
-        std::cout << x.first  // string (key)
-                  << ":aim "
-                  << x.second.aim // string's value
-                  << ":speed "
-                  << x.second.speed // string's value
-                  << ":total "
-                  << x.second.total // string's value
-                  << std::endl;
-    }
-
-    std::map<std::string, Output> u = calculateStarRating("test3.osu");
-    for (auto const& x : u)
-    {
-        std::cout << x.first  // string (key)
-                  << ":aim "
-                  << x.second.aim // string's value
-                  << ":speed "
-                  << x.second.speed // string's value
-                  << ":total "
-                  << x.second.total // string's value
-                  << std::endl;
-    }
-}
 
 std::map<std::string, Output> calculateStarRating(
                                 const std::string& filepath,
                                 const std::vector<std::string>& mods,
                                 bool allCombinations,
                                 bool verbose) {
-    /*Parameters:
-    returnAllDifficultyValues = False
-        returns total star rating value if False
-        when set to True, method will also return aim and speed difficulty
-
-    allCombinations = False
-        when set to True, will return star rating of every possible mod combination
-
-    verbose = False
-        calculator will log everything when set to True
-
-    filepath: string
-        path to .osu file (no need if map_id is set)
-
-    map_id: integer
-        BeatmapID number of a beatmap (no need if filepath is set)
-
-    mods (optional): list of string
-        Specify which mods to include during star rating calculation
-        examples:
-            mods=['DT']
-            mods=['EZ', 'HD', 'DT']
-            mods=[]
-    */
     BeatmapParser beatmapParser;
     Beatmap* beatmap = nullptr;
     std::string Map = getLocalOsuBeatmap(filepath);

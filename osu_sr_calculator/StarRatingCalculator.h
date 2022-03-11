@@ -5,9 +5,17 @@
 #include "Skills/Aim.h"
 #include "Skills/Speed.h"
 
-#include "types.h"
 #include "vector"
 #include "cmath"
+
+#ifndef TYPE_OUTPUT
+#define TYPE_OUTPUT
+struct Output {
+    float aim;
+    float speed;
+    float total;
+};
+#endif
 
 class StarRatingCalculator {
 private:
