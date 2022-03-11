@@ -1,4 +1,4 @@
-# osu_sr_calculator
+# osu_sr_calculator_cpp
 
 Package to calculate star rating of any osu beatmap with any mod combination.
 

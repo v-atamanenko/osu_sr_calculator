@@ -1,2 +1,5 @@
 __pycache__
 test/
+cmake-build-debug/
+.DS_Store
+.idea/
