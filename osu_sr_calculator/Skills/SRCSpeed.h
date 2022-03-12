@@ -1,19 +1,19 @@
-#ifndef OSU_SR_CALCULATOR_SPEED_H
-#define OSU_SR_CALCULATOR_SPEED_H
+#ifndef OSU_SR_CALCULATOR_SRCSPEED_H
+#define OSU_SR_CALCULATOR_SRCSPEED_H
 
 #include "cmath"
 
-#include "OsuStrainSkill.h"
-#include "Objects/osu/HitObjects/DifficultyHitObject.h"
+#include "SRCOsuStrainSkill.h"
+#include "Objects/osu/HitObjects/SRCDifficultyHitObject.h"
 
-class Speed : public OsuStrainSkill {
+class SRCSpeed : public SRCOsuStrainSkill {
 public:
-    Speed() {
+    SRCSpeed() {
         SkillMultiplier = 1400;
         StrainDecayBase = 0.3;
     }
 
-    float strainValueOf(DifficultyHitObject* currentObject) override {
+    float strainValueOf(SRCDifficultyHitObject* currentObject) override {
         const float distance = fminf(SINGLE_SPACING_THRESHOLD, currentObject->travelDistance + currentObject->jumpDistance);
         const float deltaTime = fmaxf(max_speed_bonus, currentObject->deltaTime);
 
@@ -48,4 +48,4 @@ private:
     const float speed_balancing_factor = 40;
 };
 
-#endif //OSU_SR_CALCULATOR_SPEED_H
+#endif //OSU_SR_CALCULATOR_SRCSPEED_H

@@ -3,20 +3,20 @@
 
 #include "string"
 #include "vector"
-#include "Objects/osu/TimingPoint.h"
-#include "Objects/osu/Beatmap.h"
+#include "Objects/osu/SRCTimingPoint.h"
+#include "Objects/osu/SRCBeatmap.h"
 #include "Logger.h"
 
-inline bool sortTimingPoints(const TimingPointContainer &a, const TimingPointContainer &b) {
+inline bool sortTimingPoints(const SRCTimingPointContainer &a, const SRCTimingPointContainer &b) {
     return a.Time < b.Time;
 }
 
 class BeatmapParser {
 public:
     BeatmapParser() = default;
-    Beatmap* parseBeatmap(const std::string& data, const std::vector<std::string>& mods, bool verbose);
+    SRCBeatmap* parseBeatmap(const std::string& data, const std::vector<std::string>& mods, bool verbose);
 private:
-    Beatmap* beatmap = nullptr;
+    SRCBeatmap* beatmap = nullptr;
     Logger* logr = nullptr;
 
     float getCircleSize(const std::vector<std::string>& mods);
@@ -24,8 +24,8 @@ private:
     float getBeatLength(float startTime);
     void applyStacking(int startIndex, int endIndex);
 
-    TimingPoint getTimingPoints(float startTime, std::vector<TimingPoint> timingPoints);
-    DifficultyTimingPoint getTimingPoints(float startTime, std::vector<DifficultyTimingPoint> timingPoints);
+    SRCTimingPoint getTimingPoints(float startTime, std::vector<SRCTimingPoint> timingPoints);
+    SRCDifficultyTimingPoint getTimingPoints(float startTime, std::vector<SRCDifficultyTimingPoint> timingPoints);
 
 
 

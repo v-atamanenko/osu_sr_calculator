@@ -1,9 +1,9 @@
-#ifndef OSU_SR_CALCULATOR_DIFFICULTYHITOBJECT_H
-#define OSU_SR_CALCULATOR_DIFFICULTYHITOBJECT_H
+#ifndef OSU_SR_CALCULATOR_SRCDIFFICULTYHITOBJECT_H
+#define OSU_SR_CALCULATOR_SRCDIFFICULTYHITOBJECT_H
 
-#include "HitObject.h"
+#include "SRCHitObject.h"
 
-class DifficultyHitObject : public HitObject {
+class SRCDifficultyHitObject : public SRCHitObject {
 public:
     float travelDistance;
     float jumpDistance;
@@ -11,9 +11,9 @@ public:
     float deltaTime;
     float strainTime;
 
-    HitObject* currentObject;
-    HitObject* lastObject;
-    HitObject* lastLastObject;
+    SRCHitObject* currentObject;
+    SRCHitObject* lastObject;
+    SRCHitObject* lastLastObject;
 
     /**
      *
@@ -26,9 +26,9 @@ public:
      * @param DeltaTime The calculated Deltatime for this HitObject
      * @param StrainTime The calculated Straintime for this hitObject
      */
-    DifficultyHitObject(HitObject* CurrentObject, HitObject* LastObject, HitObject* LastLastObject,
-                        float TravelDistance, float JumpDistance, float Angle, float DeltaTime, float StrainTime)
-                        : HitObject(*CurrentObject->position, CurrentObject->startTime, CurrentObject->radius)
+    SRCDifficultyHitObject(SRCHitObject* CurrentObject, SRCHitObject* LastObject, SRCHitObject* LastLastObject,
+                           float TravelDistance, float JumpDistance, float Angle, float DeltaTime, float StrainTime)
+                        : SRCHitObject(*CurrentObject->position, CurrentObject->startTime, CurrentObject->radius)
     {
         travelDistance = TravelDistance;
         jumpDistance = JumpDistance;
@@ -41,7 +41,7 @@ public:
         lastLastObject = LastLastObject;
     }
 
-    HitType getType() override { return HitType::HTDifficulty; }
+    SRCHitType getType() override { return SRCHitType::HTDifficulty; }
 };
 
-#endif //OSU_SR_CALCULATOR_DIFFICULTYHITOBJECT_H
+#endif //OSU_SR_CALCULATOR_SRCDIFFICULTYHITOBJECT_H

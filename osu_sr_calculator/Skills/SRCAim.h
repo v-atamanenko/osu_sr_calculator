@@ -1,23 +1,23 @@
-#ifndef OSU_SR_CALCULATOR_AIM_H
-#define OSU_SR_CALCULATOR_AIM_H
+#ifndef OSU_SR_CALCULATOR_SRCAIM_H
+#define OSU_SR_CALCULATOR_SRCAIM_H
 
 #include "cmath"
 
-#include "OsuStrainSkill.h"
-#include "Objects/osu/HitObjects/DifficultyHitObject.h"
+#include "SRCOsuStrainSkill.h"
+#include "Objects/osu/HitObjects/SRCDifficultyHitObject.h"
 
 inline float applyDimishingExp(float val) {
     return powf(val, 0.99);
 }
 
-class Aim : public OsuStrainSkill {
+class SRCAim : public SRCOsuStrainSkill {
 public:
-    Aim() {
+    SRCAim() {
         SkillMultiplier = 26.25;
         StrainDecayBase = 0.15;
     }
 
-    float strainValueOf(DifficultyHitObject* currentObject) override {
+    float strainValueOf(SRCDifficultyHitObject* currentObject) override {
         float result = 0;
         const float scale = 90;
 
@@ -44,4 +44,4 @@ private:
     const int timing_threshold = 107;
 };
 
-#endif //OSU_SR_CALCULATOR_AIM_H
+#endif //OSU_SR_CALCULATOR_SRCAIM_H

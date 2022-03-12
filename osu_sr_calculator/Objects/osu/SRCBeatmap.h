@@ -1,14 +1,14 @@
-#ifndef OSU_SR_CALCULATOR_BEATMAP_H
-#define OSU_SR_CALCULATOR_BEATMAP_H
+#ifndef OSU_SR_CALCULATOR_SRCBEATMAP_H
+#define OSU_SR_CALCULATOR_SRCBEATMAP_H
 
-#include "HitObjects/HitObject.h"
-#include "Objects/osu/TimingPoint.h"
+#include "HitObjects/SRCHitObject.h"
+#include "Objects/osu/SRCTimingPoint.h"
 #include "vector"
 
 /**
  * Class for beatmaps
  */
-class Beatmap {
+class SRCBeatmap {
 public:
     /**
      * Difficulty settings of the beatmap
@@ -26,17 +26,17 @@ public:
     /**
      * Hit objects in this beatmap
      */
-    std::vector<HitObject*> hitObjects;
+    std::vector<SRCHitObject*> hitObjects;
 
     /**
      * Timing points in this beatmap, focussed on timing settings
      */
-    std::vector<TimingPoint> timingPoints;
+    std::vector<SRCTimingPoint> timingPoints;
 
     /**
      * Timing points in this beatmap, focussed on difficulty
      */
-    std::vector<DifficultyTimingPoint> difficultyTimingPoints = {};
+    std::vector<SRCDifficultyTimingPoint> difficultyTimingPoints = {};
 
     /**
     * .osu file version
@@ -49,4 +49,4 @@ public:
     float stackLeniency = 0;
 };
 
-#endif //OSU_SR_CALCULATOR_BEATMAP_H
+#endif //OSU_SR_CALCULATOR_SRCBEATMAP_H

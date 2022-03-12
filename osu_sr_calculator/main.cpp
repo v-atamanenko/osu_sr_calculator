@@ -8,10 +8,10 @@
 
 #include "Utils.h"
 #include "osu_sr_calculator.h"
-#include "Objects/osu/Beatmap.h"
-#include "Objects/osu/HitObjects/DifficultyHitObject.h"
+#include "Objects/osu/SRCBeatmap.h"
+#include "Objects/osu/HitObjects/SRCDifficultyHitObject.h"
 
-Output calculateNextModCombination(Beatmap* beatmap, const std::vector<std::string>& mods);
+Output calculateNextModCombination(SRCBeatmap* beatmap, const std::vector<std::string>& mods);
 float getTimeRate(const std::vector<std::string>& mods);
 std::vector<ModCombination> getAllModCombinations();
 std::string getLocalOsuBeatmap(const std::string& filePath);
@@ -22,7 +22,7 @@ std::map<std::string, Output> calculateStarRating(
                                 bool allCombinations,
                                 bool verbose) {
     BeatmapParser beatmapParser;
-    Beatmap* beatmap = nullptr;
+    SRCBeatmap* beatmap = nullptr;
     std::string Map = getLocalOsuBeatmap(filepath);
 
     if (Map.empty()) {
@@ -55,11 +55,11 @@ std::map<std::string, Output> calculateStarRating(
     return output;
 }
 
-Output calculateNextModCombination(Beatmap* beatmap, const std::vector<std::string>& mods) {
+Output calculateNextModCombination(SRCBeatmap* beatmap, const std::vector<std::string>& mods) {
     DifficultyHitObjectCreator difficultyHitObjectCreator;
     StarRatingCalculator starRatingCalculator;
     float timeRate = getTimeRate(mods);
-    std::vector<DifficultyHitObject*> difficultyHitObjects = difficultyHitObjectCreator.convertToDifficultyHitObjects(beatmap->hitObjects, timeRate);
+    std::vector<SRCDifficultyHitObject*> difficultyHitObjects = difficultyHitObjectCreator.convertToDifficultyHitObjects(beatmap->hitObjects, timeRate);
     return starRatingCalculator.calculate(difficultyHitObjects, timeRate);
 }
 

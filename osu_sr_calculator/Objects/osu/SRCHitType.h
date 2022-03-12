@@ -1,7 +1,7 @@
-#ifndef OSU_SR_CALCULATOR_HITTYPE_H
-#define OSU_SR_CALCULATOR_HITTYPE_H
+#ifndef OSU_SR_CALCULATOR_SRCHITTYPE_H
+#define OSU_SR_CALCULATOR_SRCHITTYPE_H
 
-typedef enum HitType {
+typedef enum SRCHitType {
     HTNormal      = 1 << 0,
     HTSlider      = 1 << 1,
     HTNewCombo    = 1 << 2,
@@ -17,4 +17,4 @@ typedef enum HitType {
     HTDifficulty  = 1 << 16
 } HitType;
 
-#endif //OSU_SR_CALCULATOR_HITTYPE_H
+#endif //OSU_SR_CALCULATOR_SRCHITTYPE_H

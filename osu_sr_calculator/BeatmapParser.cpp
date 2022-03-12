@@ -1,21 +1,21 @@
 #include <sstream>
 #include "algorithm"
-#include "Objects/osu/HitType.h"
-#include "Objects/osu/PathType.h"
-#include "Objects/Vector2.h"
-#include "Objects/osu/Beatmap.h"
-#include "Objects/osu/HitObjects/HitObject.h"
-#include "Objects/osu/HitObjects/HitCircle.h"
-#include "Objects/osu/HitObjects/Slider.h"
-#include "Objects/osu/HitObjects/Spinner.h"
+#include "Objects/osu/SRCHitType.h"
+#include "Objects/osu/SRCPathType.h"
+#include "Objects/SRCVector2.h"
+#include "Objects/osu/SRCBeatmap.h"
+#include "Objects/osu/HitObjects/SRCHitObject.h"
+#include "Objects/osu/HitObjects/SRCHitCircle.h"
+#include "Objects/osu/HitObjects/SRCSlider.h"
+#include "Objects/osu/HitObjects/SRCSpinner.h"
 #include "SliderPath.h"
 #include "Precision.h"
 #include "Logger.h"
-#include "Objects/osu/TimingPoint.h"
+#include "Objects/osu/SRCTimingPoint.h"
 
 #include "BeatmapParser.h"
 
-Beatmap* BeatmapParser::parseBeatmap(const std::string& data, const std::vector<std::string>& mods, bool verbose) {
+SRCBeatmap* BeatmapParser::parseBeatmap(const std::string& data, const std::vector<std::string>& mods, bool verbose) {
     logr = new Logger(verbose, "BeatmapParser");
 
     if (data.empty()) {
@@ -24,7 +24,7 @@ Beatmap* BeatmapParser::parseBeatmap(const std::string& data, const std::vector<
         return nullptr;
     }
 
-    beatmap = new Beatmap();
+    beatmap = new SRCBeatmap();
     std::string section;
 
     std::stringstream lines(data);
@@ -89,54 +89,54 @@ Beatmap* BeatmapParser::parseBeatmap(const std::string& data, const std::vector<
             }
 
             if (timingChange) {
-                beatmap->timingPoints.emplace_back(TimingPoint({time, beatLength, timeSignature}));
+                beatmap->timingPoints.emplace_back(SRCTimingPoint({time, beatLength, timeSignature}));
             }
 
-            beatmap->difficultyTimingPoints.emplace_back(DifficultyTimingPoint({time, speedMultiplier}));
+            beatmap->difficultyTimingPoints.emplace_back(SRCDifficultyTimingPoint({time, speedMultiplier}));
         }
 
         else if (section == "HitObjects") {
             std::vector<std::string> split = Utils::str_split(line, ","); // TODO: why 16?
-            Vector2 pos = Vector2(std::stof(split.at(0)), std::stof(split.at(1)));
+            SRCVector2 pos = SRCVector2(std::stof(split.at(0)), std::stof(split.at(1)));
             float startTime = std::stof(split.at(2));
             int hitType = std::stoi(split.at(3));
 
-            HitObject* result = nullptr;
+            SRCHitObject* result = nullptr;
 
             float scale = (1 - 0.7f * (getCircleSize(mods) - 5) / 5) / 2;
             float radius = 64 * scale;
 
-            if (hitType & HitType::HTNormal) {
-                result = new HitCircle(pos, startTime, radius);
+            if (hitType & SRCHitType::HTNormal) {
+                result = new SRCHitCircle(pos, startTime, radius);
             }
 
-            if (hitType & HitType::HTSlider) {
-                PathType pathType;
+            if (hitType & SRCHitType::HTSlider) {
+                SRCPathType pathType;
                 float length = 0;
                 std::vector<std::string> pointSplit = Utils::str_split(split.at(5), "|"); // TODO: why 16?
 
-                std::vector<Vector2> points = {Vector2(0,0)};
+                std::vector<SRCVector2> points = {SRCVector2(0, 0)};
                 for (auto &point : pointSplit) {
                     if (point.length() == 1) {
                         if (point.at(0) == 'C') {
-                            pathType = PathType::Catmull;
+                            pathType = SRCPathType::Catmull;
                         } else if (point.at(0) == 'B') {
-                            pathType = PathType::Bezier;
+                            pathType = SRCPathType::Bezier;
                         } else if (point.at(0) == 'L') {
-                            pathType = PathType::Linear;
+                            pathType = SRCPathType::Linear;
                         } else if (point.at(0) == 'P') {
-                            pathType = PathType::PerfectCurve;
+                            pathType = SRCPathType::PerfectCurve;
                         } else {
-                            pathType = PathType::Catmull;
+                            pathType = SRCPathType::Catmull;
                         }
                         continue;
                     }
                     std::vector<std::string> temp = Utils::str_split(point, ":"); // TODO: why 16?
-                    points.push_back(Vector2(std::stof(temp.at(0)), std::stof(temp.at(1))).substract(pos));
+                    points.push_back(SRCVector2(std::stof(temp.at(0)), std::stof(temp.at(1))).substract(pos));
                 }
 
-                if (points.size() == 3 && pathType == PathType::PerfectCurve && Precision::isLinear(points)) {
-                    pathType = PathType::Linear;
+                if (points.size() == 3 && pathType == SRCPathType::PerfectCurve && Precision::isLinear(points)) {
+                    pathType = SRCPathType::Linear;
                 }
 
                 int repeatCount = std::stoi(split.at(6));
@@ -148,14 +148,14 @@ Beatmap* BeatmapParser::parseBeatmap(const std::string& data, const std::vector<
                 length = fmaxf(0, length);
 
                 auto slider_path = new SliderPath(pathType, points, length);
-                result = new Slider(pos, startTime, slider_path,
-                                    repeatCount, getSpeedMultiplier(startTime), getBeatLength(startTime),
-                                    beatmap->difficulty, radius);
+                result = new SRCSlider(pos, startTime, slider_path,
+                                       repeatCount, getSpeedMultiplier(startTime), getBeatLength(startTime),
+                                       beatmap->difficulty, radius);
             }
 
-            if (hitType & HitType::HTSpinner) {
+            if (hitType & SRCHitType::HTSpinner) {
                 float endTime = std::stof(split.at(5));
-                result = new Spinner(pos, startTime, endTime);
+                result = new SRCSpinner(pos, startTime, endTime);
             }
 
             beatmap->hitObjects.emplace_back(result);
@@ -178,16 +178,16 @@ Beatmap* BeatmapParser::parseBeatmap(const std::string& data, const std::vector<
 }
 
 float BeatmapParser::getSpeedMultiplier(float startTime) {
-    DifficultyTimingPoint currentTimingPoint = getTimingPoints(startTime, beatmap->difficultyTimingPoints);
+    SRCDifficultyTimingPoint currentTimingPoint = getTimingPoints(startTime, beatmap->difficultyTimingPoints);
     return currentTimingPoint.SpeedMultiplier;
 }
 
 float BeatmapParser::getBeatLength(float startTime) {
-    TimingPoint currentTimingPoint = getTimingPoints(startTime, beatmap->timingPoints);
+    SRCTimingPoint currentTimingPoint = getTimingPoints(startTime, beatmap->timingPoints);
     return currentTimingPoint.BeatLength;
 }
 
-TimingPoint BeatmapParser::getTimingPoints(float startTime, std::vector<TimingPoint> timingPoints) {
+SRCTimingPoint BeatmapParser::getTimingPoints(float startTime, std::vector<SRCTimingPoint> timingPoints) {
     std::sort(timingPoints.begin(), timingPoints.end(), sortTimingPoints);
     int currentTimingPoint = -999;
     for (int i = 0; i < timingPoints.size(); i++) {
@@ -209,7 +209,7 @@ TimingPoint BeatmapParser::getTimingPoints(float startTime, std::vector<TimingPo
     return timingPoints.at(currentTimingPoint);
 }
 
-DifficultyTimingPoint BeatmapParser::getTimingPoints(float startTime, std::vector<DifficultyTimingPoint> timingPoints) {
+SRCDifficultyTimingPoint BeatmapParser::getTimingPoints(float startTime, std::vector<SRCDifficultyTimingPoint> timingPoints) {
     std::sort(timingPoints.begin(), timingPoints.end(), sortTimingPoints);
     int currentTimingPoint = -1;
     for (int i = 0; i < timingPoints.size(); i++) {
@@ -221,7 +221,7 @@ DifficultyTimingPoint BeatmapParser::getTimingPoints(float startTime, std::vecto
 
     if (currentTimingPoint < 0) {
         currentTimingPoint = 0;
-        logr->log("first timing point after current hit object ("+ std::to_string(startTime) +"). Defaulting to first timing point of the map.", "warn");
+        //logr->log("first timing point after current hit object ("+ std::to_string(startTime) +"). Defaulting to first timing point of the map.", "warn");
     }
 
     return timingPoints.at(currentTimingPoint);
@@ -246,22 +246,22 @@ void BeatmapParser::applyStacking(int startIndex, int endIndex) {
             int stackBaseIndex = i;
 
             for (int n = (stackBaseIndex + 1); n < beatmap->hitObjects.size(); n++) {
-                HitObject* stackBaseObject = beatmap->hitObjects.at(stackBaseIndex);
-                if (stackBaseObject->getType() == HitType::HTSpinner) {
+                SRCHitObject* stackBaseObject = beatmap->hitObjects.at(stackBaseIndex);
+                if (stackBaseObject->getType() == SRCHitType::HTSpinner) {
                     break;
                 }
 
-                HitObject* objectN = beatmap->hitObjects.at(n);
-                if (objectN->getType() == HitType::HTSpinner) {
+                SRCHitObject* objectN = beatmap->hitObjects.at(n);
+                if (objectN->getType() == SRCHitType::HTSpinner) {
                     continue;
                 }
 
                 float endTime;
 
-                if (stackBaseObject->getType() == HitType::HTNormal) {
+                if (stackBaseObject->getType() == SRCHitType::HTNormal) {
                     endTime = stackBaseObject->startTime;
                 } else {
-                    endTime = ((Slider *)stackBaseObject)->EndTime;
+                    endTime = ((SRCSlider *)stackBaseObject)->EndTime;
                 }
 
                 float stackThreshold = (float)TimePreempt * beatmap->stackLeniency;
@@ -271,8 +271,8 @@ void BeatmapParser::applyStacking(int startIndex, int endIndex) {
                 }
 
                 bool endPositionDistanceCheck;
-                if ((stackBaseObject->getType() == HitType::HTSlider)) {
-                    endPositionDistanceCheck = ((Slider *) stackBaseObject)->EndPosition->distance(objectN->position) < (float)stack_distance;
+                if ((stackBaseObject->getType() == SRCHitType::HTSlider)) {
+                    endPositionDistanceCheck = ((SRCSlider *) stackBaseObject)->EndPosition->distance(objectN->position) < (float)stack_distance;
                 } else {
                     endPositionDistanceCheck = false;
                 }
@@ -297,24 +297,24 @@ void BeatmapParser::applyStacking(int startIndex, int endIndex) {
     for (int i = extendedEndIndex; i > startIndex; i--) {
         int n = i;
 
-        HitObject* objectI = beatmap->hitObjects.at(i);
-        if (objectI->stackHeight != 0 || objectI->getType() == HitType::HTSpinner) {
+        SRCHitObject* objectI = beatmap->hitObjects.at(i);
+        if (objectI->stackHeight != 0 || objectI->getType() == SRCHitType::HTSpinner) {
             continue;
         }
 
         float stackThreshold = (float)TimePreempt * beatmap->stackLeniency;
-        if (objectI->getType() == HitType::HTNormal) {
+        if (objectI->getType() == SRCHitType::HTNormal) {
             while (--n >= 0) {
-                HitObject* objectN = beatmap->hitObjects.at(n);
-                if (objectN->getType() == HitType::HTSpinner) {
+                SRCHitObject* objectN = beatmap->hitObjects.at(n);
+                if (objectN->getType() == SRCHitType::HTSpinner) {
                     continue;
                 }
 
                 float endTime;
-                if (objectN->getType() == HitType::HTNormal) {
+                if (objectN->getType() == SRCHitType::HTNormal) {
                     endTime = objectN->startTime;
                 } else {
-                    endTime = ((Slider *)objectN)->EndTime;
+                    endTime = ((SRCSlider *)objectN)->EndTime;
                 }
 
                 if (objectI->startTime - endTime > stackThreshold) {
@@ -327,8 +327,8 @@ void BeatmapParser::applyStacking(int startIndex, int endIndex) {
                 }
 
                 bool endPositionDistanceCheck;
-                if ((objectN->getType() == HitType::HTSlider)) {
-                    endPositionDistanceCheck = ((Slider *)objectN)->EndPosition->distance(objectI->position) < (float)stack_distance;
+                if ((objectN->getType() == SRCHitType::HTSlider)) {
+                    endPositionDistanceCheck = ((SRCSlider *)objectN)->EndPosition->distance(objectI->position) < (float)stack_distance;
                 } else {
                     endPositionDistanceCheck = false;
                 }
@@ -336,8 +336,8 @@ void BeatmapParser::applyStacking(int startIndex, int endIndex) {
                 if (endPositionDistanceCheck) {
                     int offset = objectI->stackHeight - objectN->stackHeight + 1;
                     for (int j = (n+1); j <= i; j++) {
-                        HitObject* objectJ = beatmap->hitObjects.at(j);
-                        if(((Slider *)objectN)->EndPosition->distance(objectJ->position) < (float)stack_distance) {
+                        SRCHitObject* objectJ = beatmap->hitObjects.at(j);
+                        if(((SRCSlider *)objectN)->EndPosition->distance(objectJ->position) < (float)stack_distance) {
                             objectJ->stackHeight -= offset;
                         }
                     }
@@ -351,10 +351,10 @@ void BeatmapParser::applyStacking(int startIndex, int endIndex) {
 
             }
         }
-        else if (objectI->getType() == HitType::HTSlider) {
+        else if (objectI->getType() == SRCHitType::HTSlider) {
             while (--n >= startIndex) {
-                HitObject* objectN = beatmap->hitObjects.at(n);
-                if (objectN->getType() == HitType::HTSpinner) {
+                SRCHitObject* objectN = beatmap->hitObjects.at(n);
+                if (objectN->getType() == SRCHitType::HTSpinner) {
                     continue;
                 }
 
@@ -362,11 +362,11 @@ void BeatmapParser::applyStacking(int startIndex, int endIndex) {
                     break;
                 }
 
-                Vector2* objectNEndPosition;
-                if (objectN->getType() == HitType::HTNormal) {
+                SRCVector2* objectNEndPosition;
+                if (objectN->getType() == SRCHitType::HTNormal) {
                     objectNEndPosition = objectN->position;
                 } else {
-                    objectNEndPosition = ((Slider *)objectN)->EndPosition;
+                    objectNEndPosition = ((SRCSlider *)objectN)->EndPosition;
                 }
 
                 if (objectNEndPosition->distance(objectI->position) < (float)stack_distance) {

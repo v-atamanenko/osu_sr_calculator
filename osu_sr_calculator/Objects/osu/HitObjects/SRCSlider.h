@@ -1,40 +1,41 @@
-#ifndef OSU_SR_CALCULATOR_SLIDER_H
-#define OSU_SR_CALCULATOR_SLIDER_H
+#ifndef OSU_SR_CALCULATOR_SRCSLIDER_H
+#define OSU_SR_CALCULATOR_SRCSLIDER_H
 
-#include "HitObject.h"
-#include "Objects/Vector2.h"
+#include "SRCHitObject.h"
+#include "Objects/SRCVector2.h"
 #include "SliderPath.h"
-#include "HitCircle.h"
-#include "Objects/osu/Beatmap.h"
-#include "SliderObjects/HeadCircle.h"
-#include "SliderObjects/TailCircle.h"
-#include "SliderObjects/SliderTick.h"
-#include "SliderObjects/RepeatPoint.h"
+#include "SRCHitCircle.h"
+#include "Objects/osu/SRCBeatmap.h"
+#include "SliderObjects/SRCHeadCircle.h"
+#include "SliderObjects/SRCTailCircle.h"
+#include "SliderObjects/SRCSliderTick.h"
+#include "SliderObjects/SRCRepeatPoint.h"
 
+#include <algorithm>
 #include "vector"
 
-inline bool sortHitObjects(const HitObject* a, const HitObject* b) {
+inline bool sortHitObjects(const SRCHitObject* a, const SRCHitObject* b) {
     return a->startTime < b->startTime;
 }
 
 /**
  * Class for sliders
  */
-class Slider : public HitObject {
+class SRCSlider : public SRCHitObject {
 public:
-    Vector2* EndPosition = nullptr;
+    SRCVector2* EndPosition = nullptr;
     float EndTime;
     float Duration;
     SliderPath* Path = nullptr;
     int RepeatCount;
-    std::vector<HitObject*> NestedHitObjects;
+    std::vector<SRCHitObject*> NestedHitObjects;
     float TickDistance;
-    Vector2* LazyEndPosition = nullptr;
+    SRCVector2* LazyEndPosition = nullptr;
     float LazyTravelDistance = -999.f;
     float SpanDuration;
     int LegacyLastTickOffset = 36;
-    HeadCircle* headCircle = nullptr;
-    TailCircle* tailCircle = nullptr;
+    SRCHeadCircle* headCircle = nullptr;
+    SRCTailCircle* tailCircle = nullptr;
 
     /**
      *
@@ -47,10 +48,10 @@ public:
      * @param mapDifficulty The difficulty settings of the beatmap
      * @param m_radius The radius of the slider head circle
      */
-    Slider(const Vector2& pos, float start_time, SliderPath* path, int repeatCount, float speedMultiplier, float beatLength,
-           Beatmap::Difficulty mapDifficulty, float m_radius = 0) : HitObject(pos, start_time, m_radius) {
+    SRCSlider(const SRCVector2& pos, float start_time, SliderPath* path, int repeatCount, float speedMultiplier, float beatLength,
+              SRCBeatmap::Difficulty mapDifficulty, float m_radius = 0) : SRCHitObject(pos, start_time, m_radius) {
         Path = path;
-        EndPosition = new Vector2(position->add(Path->PositionAt(1)));
+        EndPosition = new SRCVector2(position->add(Path->PositionAt(1)));
 
         calculateEndTimeAndTickDistance(speedMultiplier, beatLength, mapDifficulty, repeatCount, startTime,
                                         path->expectedDistance);
@@ -60,7 +61,7 @@ public:
         createNestedHitObjects();
     }
 
-    ~Slider() override {
+    ~SRCSlider() override {
         delete position;
         delete stackedPosition;
 
@@ -75,13 +76,13 @@ public:
         delete tailCircle;
     }
 
-    HitType getType() override { return HitType::HTSlider; }
+    SRCHitType getType() override { return SRCHitType::HTSlider; }
 
 private:
     float Velocity;
     int SpanCount;
 
-    void calculateEndTimeAndTickDistance(float speedMultiplier, float beatLength, Beatmap::Difficulty mapDifficulty,
+    void calculateEndTimeAndTickDistance(float speedMultiplier, float beatLength, SRCBeatmap::Difficulty mapDifficulty,
                                          int repeatCount, float startTime, float expectedDistance) {
         float scoringDistance = 100 * mapDifficulty.SliderMultiplier * speedMultiplier;
         Velocity = scoringDistance / beatLength;
@@ -102,8 +103,8 @@ private:
     }
 
     void createSliderEnds() {
-        headCircle = new HeadCircle(Vector2(position), startTime, radius);
-        tailCircle = new TailCircle(Vector2(EndPosition), EndTime, radius);
+        headCircle = new SRCHeadCircle(SRCVector2(position), startTime, radius);
+        tailCircle = new SRCTailCircle(SRCVector2(EndPosition), EndTime, radius);
 
         NestedHitObjects.push_back(headCircle);
         NestedHitObjects.push_back(tailCircle);
@@ -131,8 +132,8 @@ private:
                 const float distanceProgress = d / length;
                 const float timeProgress = reversed ? (1 - distanceProgress) : distanceProgress;
 
-                Vector2 sliderTickPosition = position->add(Path->PositionAt(distanceProgress));
-                auto* sliderTick = new SliderTick(sliderTickPosition, spanStartTime + timeProgress * SpanDuration, span, spanStartTime, radius);
+                SRCVector2 sliderTickPosition = position->add(Path->PositionAt(distanceProgress));
+                auto* sliderTick = new SRCSliderTick(sliderTickPosition, spanStartTime + timeProgress * SpanDuration, span, spanStartTime, radius);
                 NestedHitObjects.push_back(sliderTick);
 
                 d += tickDistance;
@@ -142,11 +143,11 @@ private:
 
     void createRepeatPoints() {
         for (int repeatIndex = 0, repeat = 1; repeatIndex < RepeatCount; repeatIndex++, repeat++) {
-            Vector2 repeatPosition = position->add(Path->PositionAt((float)(repeat % 2)));
-            auto* repeatPoint = new RepeatPoint(repeatPosition, startTime + (float)repeat * SpanDuration, repeatIndex, SpanDuration, radius);
+            SRCVector2 repeatPosition = position->add(Path->PositionAt((float)(repeat % 2)));
+            auto* repeatPoint = new SRCRepeatPoint(repeatPosition, startTime + (float)repeat * SpanDuration, repeatIndex, SpanDuration, radius);
             NestedHitObjects.push_back(repeatPoint);
         }
     }
 };
 
-#endif //OSU_SR_CALCULATOR_SLIDER_H
+#endif //OSU_SR_CALCULATOR_SRCSLIDER_H

@@ -1,8 +1,8 @@
 #include "StarRatingCalculator.h"
 
-Output StarRatingCalculator::calculate(const std::vector<DifficultyHitObject*>& hitObjects, float timeRate) const {
-    Aim aimSkill = Aim();
-    Speed speedSkill = Speed();
+Output StarRatingCalculator::calculate(const std::vector<SRCDifficultyHitObject*>& hitObjects, float timeRate) const {
+    SRCAim aimSkill = SRCAim();
+    SRCSpeed speedSkill = SRCSpeed();
 
     float sectionLength = (float)section_length * timeRate;
 

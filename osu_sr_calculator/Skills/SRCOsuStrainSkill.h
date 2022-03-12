@@ -1,17 +1,18 @@
-#ifndef OSU_SR_CALCULATOR_OSUSTRAINSKILL_H
-#define OSU_SR_CALCULATOR_OSUSTRAINSKILL_H
+#ifndef OSU_SR_CALCULATOR_SRCOSUSTRAINSKILL_H
+#define OSU_SR_CALCULATOR_SRCOSUSTRAINSKILL_H
 
-#include "Objects/osu/HitObjects/DifficultyHitObject.h"
-#include "Objects/osu/HitObjects/Spinner.h"
+#include "Objects/osu/HitObjects/SRCDifficultyHitObject.h"
+#include "Objects/osu/HitObjects/SRCSpinner.h"
 
 #include "vector"
+#include <algorithm>
 
 #define SINGLE_SPACING_THRESHOLD 125
 #define STREAM_SPACING_THRESHOLD 110
 
-class OsuStrainSkill {
+class SRCOsuStrainSkill {
 public:
-    std::vector<DifficultyHitObject *> Previous = {};
+    std::vector<SRCDifficultyHitObject *> Previous = {};
 
     float currentStrain = 1;
     float currentSectionPeak = 1;
@@ -32,9 +33,9 @@ public:
         }
     }
 
-    void process(DifficultyHitObject* currentObject) {
+    void process(SRCDifficultyHitObject* currentObject) {
         currentStrain *= strainDecay(currentObject->deltaTime);
-        if (currentObject->currentObject->getType() != HitType::HTSpinner) {
+        if (currentObject->currentObject->getType() != SRCHitType::HTSpinner) {
             currentStrain += strainValueOf(currentObject) * SkillMultiplier;
         }
 
@@ -57,13 +58,13 @@ public:
         return difficulty;
     }
 
-    virtual float strainValueOf(DifficultyHitObject* currentObject) = 0;
+    virtual float strainValueOf(SRCDifficultyHitObject* currentObject) = 0;
 
     float strainDecay(float ms) const {
         return powf(StrainDecayBase, ms / 1000);
     }
 
-    void addToHistory(DifficultyHitObject* currentObject) {
+    void addToHistory(SRCDifficultyHitObject* currentObject) {
         Previous.insert(Previous.begin(), currentObject);
         if (Previous.size() > 2) {
             Previous.pop_back();
@@ -71,4 +72,4 @@ public:
     }
 };
 
-#endif //OSU_SR_CALCULATOR_OSUSTRAINSKILL_H
+#endif //OSU_SR_CALCULATOR_SRCOSUSTRAINSKILL_H

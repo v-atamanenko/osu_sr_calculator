@@ -1,7 +1,7 @@
 #ifndef OSU_SR_CALCULATOR_PATHAPPROXIMATOR_H
 #define OSU_SR_CALCULATOR_PATHAPPROXIMATOR_H
 
-#include "Objects/Vector2.h"
+#include "Objects/SRCVector2.h"
 #include "Precision.h"
 
 #include "cmath"
@@ -13,38 +13,38 @@
 
 class PathApproximator {
 public:
-    std::vector<Vector2> approximateBezier(const std::vector<Vector2> &controlPoints) {
-        std::vector<Vector2> output;
+    std::vector<SRCVector2> approximateBezier(const std::vector<SRCVector2> &controlPoints) {
+        std::vector<SRCVector2> output;
         int count = (int)controlPoints.size();
 
         if (count == 0) {
             return output;
         }
 
-        std::vector<Vector2> subdivisionBuffer1;
-        std::vector<Vector2> subdivisionBuffer2;
+        std::vector<SRCVector2> subdivisionBuffer1;
+        std::vector<SRCVector2> subdivisionBuffer2;
         for (int i = 0; i < count; ++i) {
-            subdivisionBuffer1.emplace_back(Vector2(0, 0));
+            subdivisionBuffer1.emplace_back(SRCVector2(0, 0));
         }
 
         for (int i = 0; i < (count * 2 - 1); ++i) {
-            subdivisionBuffer2.emplace_back(Vector2(0, 0));
+            subdivisionBuffer2.emplace_back(SRCVector2(0, 0));
         }
 
-        std::vector<std::vector<Vector2>> toFlatten;
-        std::vector<std::vector<Vector2>> freeBuffers;
+        std::vector<std::vector<SRCVector2>> toFlatten;
+        std::vector<std::vector<SRCVector2>> freeBuffers;
 
-        std::vector<Vector2> deepCopy;
-        for (const Vector2 &c : controlPoints) {
+        std::vector<SRCVector2> deepCopy;
+        for (const SRCVector2 &c : controlPoints) {
             deepCopy.emplace_back(c);
         }
 
         toFlatten.push_back(deepCopy);
 
-        std::vector<Vector2> leftChild = subdivisionBuffer2;
+        std::vector<SRCVector2> leftChild = subdivisionBuffer2;
 
         while (!toFlatten.empty()) {
-            std::vector<Vector2> parent = toFlatten.back();
+            std::vector<SRCVector2> parent = toFlatten.back();
             toFlatten.pop_back();
 
             if (bezierIsFlatEnough(parent)) {
@@ -53,14 +53,14 @@ public:
                 continue;
             }
 
-            std::vector<Vector2> rightChild;
+            std::vector<SRCVector2> rightChild;
 
             if (!freeBuffers.empty()) {
                 rightChild = freeBuffers.back();
                 freeBuffers.pop_back();
             } else {
                 for (int i = 0; i < count; ++i) {
-                    rightChild.emplace_back(Vector2(0, 0));
+                    rightChild.emplace_back(SRCVector2(0, 0));
                 }
             }
 
@@ -78,14 +78,14 @@ public:
         return output;
     }
 
-    std::vector<Vector2> approximateCatmull(std::vector<Vector2> controlPoints) {
-        std::vector<Vector2> result;
+    std::vector<SRCVector2> approximateCatmull(std::vector<SRCVector2> controlPoints) {
+        std::vector<SRCVector2> result;
 
         for (int i = 0; i < (controlPoints.size()-1); ++i) {
-            Vector2 v1 = (i > 0) ? controlPoints.at(i - 1) : controlPoints.at(i);
-            Vector2 v2 = controlPoints.at(i);
-            Vector2 v3 = (i < (controlPoints.size() - 1)) ? controlPoints.at(i + 1) : v2.add(v2).substract(v1);
-            Vector2 v4 = (i < (controlPoints.size() - 2)) ? controlPoints.at(i + 2) : v3.add(v3).substract(v2);
+            SRCVector2 v1 = (i > 0) ? controlPoints.at(i - 1) : controlPoints.at(i);
+            SRCVector2 v2 = controlPoints.at(i);
+            SRCVector2 v3 = (i < (controlPoints.size() - 1)) ? controlPoints.at(i + 1) : v2.add(v2).substract(v1);
+            SRCVector2 v4 = (i < (controlPoints.size() - 2)) ? controlPoints.at(i + 2) : v3.add(v3).substract(v2);
 
             for (int c = 0; c < catmull_detail; ++c) {
                 result.push_back(catmullFindPoint(v1, v2, v3, v4, (float)c / catmull_detail));
@@ -96,12 +96,12 @@ public:
         return result;
     }
 
-    std::vector<Vector2> approximateCircularArc(std::vector<Vector2> controlPoints) {
-        std::vector<Vector2> output;
+    std::vector<SRCVector2> approximateCircularArc(std::vector<SRCVector2> controlPoints) {
+        std::vector<SRCVector2> output;
 
-        Vector2 a = controlPoints.at(0);
-        Vector2 b = controlPoints.at(1);
-        Vector2 c = controlPoints.at(2);
+        SRCVector2 a = controlPoints.at(0);
+        SRCVector2 b = controlPoints.at(1);
+        SRCVector2 c = controlPoints.at(2);
 
         float aSq = (b.substract(c)).lengthSquared();
         float bSq = (a.substract(c)).lengthSquared();
@@ -121,9 +121,9 @@ public:
             return output;
         }
 
-        Vector2 centre = (a.scale(s).add(b.scale(t)).add(c.scale(u))).divide(Sum);
-        Vector2 dA = a.substract(centre);
-        Vector2 dC = c.substract(centre);
+        SRCVector2 centre = (a.scale(s).add(b.scale(t)).add(c.scale(u))).divide(Sum);
+        SRCVector2 dA = a.substract(centre);
+        SRCVector2 dC = c.substract(centre);
 
         float r = dA.length();
 
@@ -137,8 +137,8 @@ public:
         int Dir = 1;
         float thetaRange = thetaEnd - thetaStart;
 
-        Vector2 orthoAtoC = c.substract(a);
-        orthoAtoC = Vector2(orthoAtoC.y, -1 * orthoAtoC.x);
+        SRCVector2 orthoAtoC = c.substract(a);
+        orthoAtoC = SRCVector2(orthoAtoC.y, -1 * orthoAtoC.x);
 
         if(orthoAtoC.dot(b.substract(a)) < 0) {
             Dir = -1 * Dir;
@@ -156,19 +156,19 @@ public:
         for (int i = 0; i < amountPoints; ++i) {
             float fract = (float)i / ((float)amountPoints - 1);
             float theta = thetaStart + (float)Dir * fract * thetaRange;
-            Vector2 o = Vector2(cos(theta), sin(theta)).scale(r);
+            SRCVector2 o = SRCVector2(cos(theta), sin(theta)).scale(r);
             output.push_back(centre.add(o));
         }
 
         return output;
     }
 
-    std::vector<Vector2> approximateLinear(std::vector<Vector2> controlPoints) {
+    std::vector<SRCVector2> approximateLinear(std::vector<SRCVector2> controlPoints) {
         return controlPoints;
     }
 
 private:
-    bool bezierIsFlatEnough(const std::vector<Vector2> &controlPoints) {
+    bool bezierIsFlatEnough(const std::vector<SRCVector2> &controlPoints) {
         for (int i = 1; i < (controlPoints.size() - 1); ++i) {
             if ((controlPoints.at(i - 1).substract(controlPoints.at(i).scale(2)).add(controlPoints.at(i + 1))).lengthSquared() > bezier_tolerance * bezier_tolerance * 4) {
                 return false;
@@ -178,9 +178,9 @@ private:
         return true;
     }
 
-    void bezierApproximate(const std::vector<Vector2>& controlPoints, std::vector<Vector2> &output, const std::vector<Vector2>& subdivisionBuffer1, const std::vector<Vector2>& subdivisionBuffer2, int count) {
-        std::vector<Vector2> l = subdivisionBuffer2;
-        std::vector<Vector2> r = subdivisionBuffer1;
+    void bezierApproximate(const std::vector<SRCVector2>& controlPoints, std::vector<SRCVector2> &output, const std::vector<SRCVector2>& subdivisionBuffer1, const std::vector<SRCVector2>& subdivisionBuffer2, int count) {
+        std::vector<SRCVector2> l = subdivisionBuffer2;
+        std::vector<SRCVector2> r = subdivisionBuffer1;
 
         bezierSubdivide(controlPoints, l, r, subdivisionBuffer1, count);
 
@@ -191,13 +191,13 @@ private:
         output.push_back(controlPoints[0]);
         for (int i = 1; i < (count - 1); ++i) {
             int index = 2*i;
-            Vector2 p = (l.at(index - 1).add(l.at(index).scale(2)).add(l.at(index + 1))).scale(0.25);
+            SRCVector2 p = (l.at(index - 1).add(l.at(index).scale(2)).add(l.at(index + 1))).scale(0.25);
             output.push_back(p);
         }
     }
     
-    void bezierSubdivide(const std::vector<Vector2> &controlPoints, std::vector<Vector2>& l, std::vector<Vector2>& r, const std::vector<Vector2> &subdivisionBuffer, int count) {
-        std::vector<Vector2> midpoints = subdivisionBuffer;
+    void bezierSubdivide(const std::vector<SRCVector2> &controlPoints, std::vector<SRCVector2>& l, std::vector<SRCVector2>& r, const std::vector<SRCVector2> &subdivisionBuffer, int count) {
+        std::vector<SRCVector2> midpoints = subdivisionBuffer;
 
         for (int i = 0; i < count; ++i) {
             midpoints.at(i) = controlPoints.at(i);
@@ -213,7 +213,7 @@ private:
         }
     }
 
-    Vector2 catmullFindPoint(const Vector2& vec1, const Vector2& vec2, const Vector2& vec3, const Vector2& vec4, float t) {
+    SRCVector2 catmullFindPoint(const SRCVector2& vec1, const SRCVector2& vec2, const SRCVector2& vec3, const SRCVector2& vec4, float t) {
         float t2 = t * t;
         float t3 = t * t2;
         return {

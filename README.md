@@ -50,7 +50,7 @@ starRatings = calculateStarRating(filepath='path/to/file.osu', allCombinations=T
 # }
 ```
 
-- Aim and Speed ratings:
+- SRCAim and SRCSpeed ratings:
 ```python
 starRatings = calculateStarRating(filepath='path/to/file.osu', returnAllDifficultyValues=True)
 # Response:

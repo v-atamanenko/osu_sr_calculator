@@ -1,20 +1,20 @@
 #include "DifficultyHitObjectCreator.h"
-#include "Objects/osu/HitType.h"
+#include "Objects/osu/SRCHitType.h"
 
-std::vector<DifficultyHitObject*> DifficultyHitObjectCreator::convertToDifficultyHitObjects(std::vector<HitObject*> hitObjects, float time_rate) {
+std::vector<SRCDifficultyHitObject*> DifficultyHitObjectCreator::convertToDifficultyHitObjects(std::vector<SRCHitObject*> hitObjects, float time_rate) {
     for (int i = 1; i < hitObjects.size(); ++i) {
-        HitObject* lastLast = (i > 1) ? hitObjects.at(i-2) : nullptr;
-        HitObject* last = hitObjects.at(i-1);
-        HitObject* current = hitObjects.at(i);
+        SRCHitObject* lastLast = (i > 1) ? hitObjects.at(i - 2) : nullptr;
+        SRCHitObject* last = hitObjects.at(i - 1);
+        SRCHitObject* current = hitObjects.at(i);
 
-        DifficultyHitObject* difficultyHitObject = createDifficultyHitObject(lastLast, last, current, time_rate);
+        SRCDifficultyHitObject* difficultyHitObject = createDifficultyHitObject(lastLast, last, current, time_rate);
         difficultyHitObjects.push_back(difficultyHitObject);
     }
 
     return difficultyHitObjects;
 }
 
-DifficultyHitObject* DifficultyHitObjectCreator::createDifficultyHitObject(HitObject* lastLast, HitObject* last, HitObject* current, float time_rate) {
+SRCDifficultyHitObject* DifficultyHitObjectCreator::createDifficultyHitObject(SRCHitObject* lastLast, SRCHitObject* last, SRCHitObject* current, float time_rate) {
     lastLastObject = lastLast;
     lastObject = last;
     currentObject = current;
@@ -23,7 +23,7 @@ DifficultyHitObject* DifficultyHitObjectCreator::createDifficultyHitObject(HitOb
     setDistances();
     setTimingValues();
 
-    return new DifficultyHitObject(currentObject, lastObject, lastLastObject, TravelDistance, JumpDistance, Angle, DeltaTime, StrainTime);
+    return new SRCDifficultyHitObject(currentObject, lastObject, lastLastObject, TravelDistance, JumpDistance, Angle, DeltaTime, StrainTime);
 }
 
 void DifficultyHitObjectCreator::setDistances() {
@@ -39,23 +39,23 @@ void DifficultyHitObjectCreator::setDistances() {
         scalingFactor *= 1 + smallCircleBonus;
     }
 
-    if (lastObject->getType() == HitType::HTSlider) {
-        auto lastSlider = (Slider*)lastObject;
+    if (lastObject->getType() == SRCHitType::HTSlider) {
+        auto lastSlider = (SRCSlider*)lastObject;
         computeSliderCursorPosition(lastSlider);
         TravelDistance = lastSlider->LazyTravelDistance * scalingFactor;
     }
 
-    Vector2 lastCursorPosition = getEndCursorPosition(lastObject);
+    SRCVector2 lastCursorPosition = getEndCursorPosition(lastObject);
 
-    if (currentObject->getType() != HitType::HTSpinner) {
+    if (currentObject->getType() != SRCHitType::HTSpinner) {
         JumpDistance = currentObject->stackedPosition->scale(scalingFactor).substract(lastCursorPosition.scale(scalingFactor)).length();
     }
 
     if (lastLastObject != nullptr) {
-        Vector2 lastLastCursorPosition = getEndCursorPosition(lastLastObject);
+        SRCVector2 lastLastCursorPosition = getEndCursorPosition(lastLastObject);
 
-        Vector2 v1 = lastLastCursorPosition.substract(lastObject->stackedPosition);
-        Vector2 v2 = currentObject->stackedPosition->substract(lastCursorPosition);
+        SRCVector2 v1 = lastLastCursorPosition.substract(lastObject->stackedPosition);
+        SRCVector2 v2 = currentObject->stackedPosition->substract(lastCursorPosition);
 
         float dot = v1.dot(v2);
         float det = v1.x * v2.y - v1.y * v2.x;
@@ -69,12 +69,12 @@ void DifficultyHitObjectCreator::setTimingValues() {
     StrainTime = fmaxf(50, DeltaTime);
 }
 
-void DifficultyHitObjectCreator::computeSliderCursorPosition(Slider* slider) {
+void DifficultyHitObjectCreator::computeSliderCursorPosition(SRCSlider* slider) {
     if (slider->LazyEndPosition != nullptr) {
         return;
     }
 
-    slider->LazyEndPosition = new Vector2(slider->stackedPosition);
+    slider->LazyEndPosition = new SRCVector2(slider->stackedPosition);
     slider->LazyTravelDistance = 0;
 
     float approxFollowCircleRadius = slider->radius * 3;
@@ -87,13 +87,13 @@ void DifficultyHitObjectCreator::computeSliderCursorPosition(Slider* slider) {
             progress = progress % 1;
         }
 
-        Vector2 diff = slider->stackedPosition->add(slider->Path->PositionAt((float)progress)).substract(slider->LazyEndPosition);
+        SRCVector2 diff = slider->stackedPosition->add(slider->Path->PositionAt((float)progress)).substract(slider->LazyEndPosition);
         float dist = diff.length();
 
         if (dist > approxFollowCircleRadius) {
             diff.normalize();
             dist -= approxFollowCircleRadius;
-            auto* NewLazyEndPosition = new Vector2(slider->LazyEndPosition->add(diff.scale(dist)));
+            auto* NewLazyEndPosition = new SRCVector2(slider->LazyEndPosition->add(diff.scale(dist)));
             delete slider->LazyEndPosition;
             slider->LazyEndPosition = NewLazyEndPosition;
             slider->LazyTravelDistance = (slider->LazyTravelDistance == -999.f) ? dist : slider->LazyTravelDistance + dist;
@@ -101,11 +101,11 @@ void DifficultyHitObjectCreator::computeSliderCursorPosition(Slider* slider) {
     }
 }
 
-Vector2 DifficultyHitObjectCreator::getEndCursorPosition(HitObject* obj) {
-    Vector2 pos = Vector2(obj->stackedPosition);
-    if (obj->getType() == HitType::HTSlider) {
-        computeSliderCursorPosition((Slider *)obj);
-        pos = (((Slider *)obj)->LazyEndPosition != nullptr) ? Vector2(((Slider *)obj)->LazyEndPosition) : pos;
+SRCVector2 DifficultyHitObjectCreator::getEndCursorPosition(SRCHitObject* obj) {
+    SRCVector2 pos = SRCVector2(obj->stackedPosition);
+    if (obj->getType() == SRCHitType::HTSlider) {
+        computeSliderCursorPosition((SRCSlider *)obj);
+        pos = (((SRCSlider *)obj)->LazyEndPosition != nullptr) ? SRCVector2(((SRCSlider *)obj)->LazyEndPosition) : pos;
     }
 
     return pos;

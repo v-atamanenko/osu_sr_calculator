@@ -1,29 +1,29 @@
 #ifndef OSU_SR_CALCULATOR_DIFFICULTYHITOBJECTCREATOR_H
 #define OSU_SR_CALCULATOR_DIFFICULTYHITOBJECTCREATOR_H
 
-#include "Objects/osu/HitObjects/HitObject.h"
-#include "Objects/osu/HitObjects/DifficultyHitObject.h"
-#include "Objects/osu/HitObjects/Slider.h"
-#include "Objects/osu/HitObjects/Spinner.h"
-#include "Objects/Vector2.h"
+#include "Objects/osu/HitObjects/SRCHitObject.h"
+#include "Objects/osu/HitObjects/SRCDifficultyHitObject.h"
+#include "Objects/osu/HitObjects/SRCSlider.h"
+#include "Objects/osu/HitObjects/SRCSpinner.h"
+#include "Objects/SRCVector2.h"
 #include <cmath>
 #include "vector"
 
 class DifficultyHitObjectCreator {
 public:
-    std::vector<DifficultyHitObject*> convertToDifficultyHitObjects(std::vector<HitObject*> hitObjects, float time_rate);
-    DifficultyHitObject* createDifficultyHitObject(HitObject* lastLast, HitObject* last, HitObject* current, float time_rate);
+    std::vector<SRCDifficultyHitObject*> convertToDifficultyHitObjects(std::vector<SRCHitObject*> hitObjects, float time_rate);
+    SRCDifficultyHitObject* createDifficultyHitObject(SRCHitObject* lastLast, SRCHitObject* last, SRCHitObject* current, float time_rate);
     void setDistances();
     void setTimingValues();
-    void computeSliderCursorPosition(Slider* slider);
-    Vector2 getEndCursorPosition(HitObject* obj);
+    void computeSliderCursorPosition(SRCSlider* slider);
+    SRCVector2 getEndCursorPosition(SRCHitObject* obj);
 
 private:
-    std::vector<DifficultyHitObject*> difficultyHitObjects = {};
+    std::vector<SRCDifficultyHitObject*> difficultyHitObjects = {};
 
-    HitObject* lastLastObject = nullptr;
-    HitObject* lastObject = nullptr;
-    HitObject* currentObject = nullptr;
+    SRCHitObject* lastLastObject = nullptr;
+    SRCHitObject* lastObject = nullptr;
+    SRCHitObject* currentObject = nullptr;
     float timeRate;
 
     float normalized_radius = 52;
