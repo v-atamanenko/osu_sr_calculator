@@ -6,7 +6,13 @@ Output StarRatingCalculator::calculate(const std::vector<SRCDifficultyHitObject*
 
     float sectionLength = (float)section_length * timeRate;
 
-    float currentSectionEnd = ceil(((hitObjects.at(0) != nullptr) ? hitObjects.at(0)->startTime : 0) / sectionLength) * sectionLength;
+    float startTime;
+    if (!hitObjects.empty()) {
+        startTime = ((hitObjects.at(0) != nullptr) ? hitObjects.at(0)->startTime : 0);
+    } else {
+        startTime = 0;
+    }
+    float currentSectionEnd = ceil(startTime / sectionLength) * sectionLength;
 
     for (auto &h : hitObjects) {
         while (h->currentObject->startTime > currentSectionEnd) {

@@ -4,7 +4,6 @@
 
 #include <fstream>
 #include <sstream>
-#include <iostream>
 
 #include "Utils.h"
 #include "osu_sr_calculator.h"

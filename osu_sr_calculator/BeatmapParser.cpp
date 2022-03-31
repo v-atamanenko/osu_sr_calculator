@@ -33,7 +33,7 @@ SRCBeatmap* BeatmapParser::parseBeatmap(const std::string& data, const std::vect
     logr->log("Parsing beatmap");
     while(std::getline(lines,line,'\n')){
         line = Utils::trim(line);
-        if (line.rfind("//", 0) == 0 || line.empty()) {
+        if (line.rfind("//", 0) == 0 || line.empty() || line == "\r") {
             continue;
         }
 
