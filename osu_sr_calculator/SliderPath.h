@@ -87,6 +87,10 @@ public:
         cumulativeLength = {};
         cumulativeLength.push_back(l);
 
+        if (calculatedPath.empty()) {
+            return;
+        }
+
         for (int i = 0; i < (calculatedPath.size() - 1); ++i) {
             SRCVector2 diff = calculatedPath.at(i + 1).substract(calculatedPath[i]);
             float d = diff.length();
