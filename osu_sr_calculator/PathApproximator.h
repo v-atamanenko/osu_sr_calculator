@@ -81,6 +81,10 @@ public:
     std::vector<SRCVector2> approximateCatmull(std::vector<SRCVector2> controlPoints) {
         std::vector<SRCVector2> result;
 
+        if (controlPoints.size() == 0) {
+            return result;
+        }
+
         for (int i = 0; i < (controlPoints.size()-1); ++i) {
             SRCVector2 v1 = (i > 0) ? controlPoints.at(i - 1) : controlPoints.at(i);
             SRCVector2 v2 = controlPoints.at(i);
